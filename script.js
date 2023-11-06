@@ -1,45 +1,111 @@
-const btn1 = document.querySelector('#btn-01');
-const btn2 = document.querySelector('#btn-02');
-const btn3 = document.querySelector('#btn-03');
-const btn4 = document.querySelector('#btn-04');
-const btn5 = document.querySelector('#btn-05');
-const btn6 = document.querySelector('#btn-06');
-const btn7 = document.querySelector('#btn-07');
-const btn8 = document.querySelector('#btn-08');
-const btn9 = document.querySelector('#btn-09');
-const btn0 = document.querySelector('#btn-00');
 const digitButtons = document.querySelectorAll('[id^="btn-0"]');
-const btnClear = document.querySelector('#btn-clear');
-const btnBackspace = document.querySelector('#btn-backspace');
-const btnRemainder = document.querySelector('#btn-remainder');
-const btnDivide = document.querySelector('#btn-divide');
+const operationButtons = document.querySelectorAll('[id^="btn-op"]');
+const clearBtn = document.querySelector('#btn-clear');
+const backspaceBtn = document.querySelector('#btn-backspace');
+const equalBtn = document.querySelector('#btn-equal');
 const currentOperandDisplay = document.querySelector('#current-operand');
+const previousOperandDisplay = document.querySelector('#previous-operand');
 
-let currentOperand = "";
-let displayValue = "";
+let currentOperand = '&nbsp';
+let previousOperand = '&nbsp';
+let operation = "";
 
 function calculate(operand1, operand2, operation) {
+    console.log(operation == '&#43')
     switch(operation) {
-        case "+": return operand1 + operand2;
-        case "-": return operand1 - operand2;
-        case "*": return operand1 * operand2;
-        case "/": {
+        case '+': 
+            console.log(operand1 + operand2);
+            return operand1 + operand2;
+        case '-': return operand1 - operand2;
+        case '×': return operand1 * operand2;
+        case '÷': {
             if(operand2 != 0)
                 return operand1 / operand2;
+            else return "ERR";
+        }
+        case '%': {
+            if(operand2 != 0)
+                return operand1 % operand2;
             else return "ERR";
         }
     }
 }
 
 function appendDigit(digit) {
-    if(!currentOperand.includes('.'))
-        currentOperand += digit;
+    if(currentOperand == '&nbsp')
+        currentOperand = digit;
+    else {
+        if((digit === '.' && currentOperand.includes('.')) || currentOperand == "ERR") return;
+        else currentOperand += digit;
+    }
 }
 
-digitButtons.forEach(element => {
-    element.addEventListener('click', () => {
-        appendDigit(element.textContent);
+function backspace() {
+    if(currentOperand == "ERR") clearAll(); 
+    if(currentOperand != '&nbsp')
+        currentOperand = currentOperand.slice(0, -1);
+    if(currentOperand == "")
+        currentOperand = '&nbsp';  
+}
+
+function clearAll() {
+    currentOperand = '&nbsp';
+    previousOperand = '&nbsp';
+    operation = "";
+}
+
+function updateDisplay() {
+    currentOperandDisplay.innerHTML = currentOperand;
+    previousOperandDisplay.innerHTML = previousOperand + ' ' + operation;
+}
+
+
+backspaceBtn.addEventListener('click', () => {
+    backspace();
+    updateDisplay();
+    
+});
+
+clearBtn.addEventListener('click', () => {
+    clearAll();
+    updateDisplay();
+});
+
+digitButtons.forEach(elem => {
+    elem.addEventListener('click', () => {
+        appendDigit(elem.textContent);
         updateDisplay();
     });
 });
 
+operationButtons.forEach(elem => {
+    elem.addEventListener('click', () => {
+        if(currentOperand === '&nbsp') return;
+        else {
+            if(currentOperand != "ERR") {
+                if(previousOperand != '&nbsp') {
+                    previousOperand = calculate(parseFloat(previousOperand), parseFloat(currentOperand), operation).toString();
+                    currentOperand = '&nbsp';
+                    operation = elem.textContent;
+                }
+                else {
+                    operation = elem.textContent;
+                    previousOperand = currentOperand;
+                    currentOperand = '&nbsp';
+                }
+
+                updateDisplay(); 
+            }
+        }
+    });
+});
+
+equalBtn.addEventListener('click', () => {
+    if(previousOperand === '&nbsp') return;
+    else {
+        currentOperand = calculate(parseFloat(previousOperand), parseFloat(currentOperand), operation).toString();
+        previousOperand = '&nbsp';
+        operation = '';
+        updateDisplay();
+    }
+});

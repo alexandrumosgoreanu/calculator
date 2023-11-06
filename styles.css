@@ -40,12 +40,13 @@ body {
 }
 
 .previous-operand {
-    margin: 5px 10px;
+    margin: 5px 20px;
     color: #8c916c;
 }
 .current-operand {
     font-size: 1.5rem;
-    margin-right: 10px;
+    margin-right: 20px;
+    margin-bottom: 10px;
     color: var(--dark-color);
 }
 
